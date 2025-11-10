@@ -39,6 +39,12 @@ async function run() {
 			res.send(result);
 		});
 
+		app.get("/recent-issues", async (req, res) => {
+			const cursor = issuesCollection.find().sort({ date: -1 }).limit(6);
+			const result = await cursor.toArray();
+			res.send(result);
+		});
+
 		app.post("/issues", async (req, res) => {
 			const newIssue = req.body;
 			const result = await issuesCollection.insertOne(newIssue);
