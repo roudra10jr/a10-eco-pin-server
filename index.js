@@ -28,6 +28,23 @@ async function run() {
 	try {
 		// Connect the client to the server	(optional starting in v4.7)
 		await client.connect();
+
+		const db = client.db("eco_db");
+		const issuesCollection = db.collection("issues");
+
+		// issues related API's :
+		app.get("/issues", async (req, res) => {
+			const cursor = issuesCollection.find();
+			const result = await cursor.toArray();
+			res.send(result);
+		});
+
+		app.post("/issues", async (req, res) => {
+			const newIssue = req.body;
+			const result = await issuesCollection.insertOne(newIssue);
+			res.send(result);
+		});
+
 		// Send a ping to confirm a successful connection
 		await client.db("admin").command({ ping: 1 });
 		console.log(
