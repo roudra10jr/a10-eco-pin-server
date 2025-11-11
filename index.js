@@ -71,6 +71,23 @@ async function run() {
 			res.send(result);
 		});
 
+		app.patch("/issues/:id", async (req, res) => {
+			const id = req.params.id;
+			const updatedIssue = req.body;
+			const query = { _id: new ObjectId(id) };
+
+			const update = {
+				$set: updatedIssue,
+			};
+			const options = {};
+			const result = await issuesCollection.updateOne(
+				query,
+				options,
+				update
+			);
+			res.send(result);
+		});
+
 		// contribution related api's:
 		app.get("/contributions", async (req, res) => {
 			const email = req.query.email;
@@ -99,6 +116,13 @@ async function run() {
 				.find(query)
 				.sort({ amount: -1 });
 			const result = await cursor.toArray();
+			res.send(result);
+		});
+
+		app.delete("/contributions/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: new ObjectId(id) };
+			const result = await contributionCollection.deleteOne(query);
 			res.send(result);
 		});
 
