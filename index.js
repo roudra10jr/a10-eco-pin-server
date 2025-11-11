@@ -35,7 +35,12 @@ async function run() {
 
 		// issues related API's :
 		app.get("/issues", async (req, res) => {
-			const cursor = issuesCollection.find();
+			const email = req.query.email;
+			const query = {};
+			if (email) {
+				query.email = email;
+			}
+			const cursor = issuesCollection.find(query);
 			const result = await cursor.toArray();
 			res.send(result);
 		});
@@ -59,8 +64,15 @@ async function run() {
 			res.send(result);
 		});
 
+		app.delete("/issues/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: new ObjectId(id) };
+			const result = await issuesCollection.deleteOne(query);
+			res.send(result);
+		});
+
 		// contribution related api's:
-		app.get("contributions", async (req, res) => {
+		app.get("/contributions", async (req, res) => {
 			const email = req.query.email;
 			const query = {};
 			if (email) {
@@ -72,11 +84,21 @@ async function run() {
 			res.send(result);
 		});
 
-		app.post("contributions", async (req, res) => {
+		app.post("/contributions", async (req, res) => {
 			const newContribution = req.body;
 			const result = await contributionCollection.insertOne(
 				newContribution
 			);
+			res.send(result);
+		});
+
+		app.get("/issue/contributions/:issueId", async (req, res) => {
+			const issueId = req.params.issueId;
+			const query = { issueId: issueId };
+			const cursor = contributionCollection
+				.find(query)
+				.sort({ amount: -1 });
+			const result = await cursor.toArray();
 			res.send(result);
 		});
 
