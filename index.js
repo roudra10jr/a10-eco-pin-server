@@ -145,6 +145,27 @@ async function run() {
 			res.send(result);
 		});
 
+		// community stats related apis:
+		app.get("/community-stats", async (req, res) => {
+			const totalUsers = await usersCollection.countDocuments();
+			//console.log(totalUsers);
+
+			const totalIssues = await issuesCollection.countDocuments();
+			const resolvedIssues = await issuesCollection.countDocuments({
+				status: "ended",
+			});
+			const pendingIssues = await issuesCollection.countDocuments({
+				status: "ongoing",
+			});
+
+			res.send({
+				totalUsers,
+				totalIssues,
+				resolvedIssues,
+				pendingIssues,
+			});
+		});
+
 		// Send a ping to confirm a successful connection
 		await client.db("admin").command({ ping: 1 });
 		console.log(
