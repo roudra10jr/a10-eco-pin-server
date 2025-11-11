@@ -32,6 +32,23 @@ async function run() {
 		const db = client.db("eco_db");
 		const issuesCollection = db.collection("issues");
 		const contributionCollection = db.collection("contribution");
+		const usersCollection = db.collection("users");
+
+		// user related api's
+		app.post("/users", async (req, res) => {
+			const newUser = req.body;
+			const email = newUser.email;
+			const query = { email: email };
+
+			const existingUser = await usersCollection.findOne(query);
+
+			if (existingUser) {
+				res.send({ message: "This user already exist" });
+			} else {
+				const result = await usersCollection.insertOne(newUser);
+				res.send(result);
+			}
+		});
 
 		// issues related API's :
 		app.get("/issues", async (req, res) => {
@@ -72,6 +89,8 @@ async function run() {
 		});
 
 		app.patch("/issues/:id", async (req, res) => {
+			//console.log(req.params.id);
+
 			const id = req.params.id;
 			const updatedIssue = req.body;
 			const query = { _id: new ObjectId(id) };
@@ -82,8 +101,8 @@ async function run() {
 			const options = {};
 			const result = await issuesCollection.updateOne(
 				query,
-				options,
-				update
+				update,
+				options
 			);
 			res.send(result);
 		});
